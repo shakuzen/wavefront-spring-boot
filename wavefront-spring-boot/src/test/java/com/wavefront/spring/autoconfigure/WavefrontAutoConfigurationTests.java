@@ -1,12 +1,12 @@
 package com.wavefront.spring.autoconfigure;
 
-import brave.handler.SpanHandler;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import brave.Tracer;
 import brave.TracingCustomizer;
+import brave.handler.SpanHandler;
 import com.wavefront.opentracing.WavefrontTracer;
 import com.wavefront.opentracing.reporting.Reporter;
 import com.wavefront.sdk.common.WavefrontSender;
@@ -194,6 +194,15 @@ class WavefrontAutoConfigurationTests {
           "redMetricsCustomTagKeys");
       assertThat(redMetricsCustomTagKeys).containsExactlyInAnyOrder("span.kind", "region", "test");
     });
+  }
+
+  @Test
+  void tracingIsDisabledWhenOpenTracingAndSleuthAreNotAvailable() {
+    this.contextRunner
+        .withClassLoader(new FilteredClassLoader("org.springframework.cloud.sleuth", "io.opentracing"))
+        .with(wavefrontMetrics(() -> mock(WavefrontSender.class)))
+        .run((context) -> assertThat(context).doesNotHaveBean(TracingCustomizer.class)
+            .doesNotHaveBean(io.opentracing.Tracer.class));
   }
 
   @Test
