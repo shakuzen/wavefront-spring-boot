@@ -82,8 +82,6 @@ final class WavefrontSleuthSpanHandler extends SpanHandler implements Runnable, 
   final LinkedBlockingQueue<Pair<TraceContext, MutableSpan>> spanBuffer;
   final WavefrontSender wavefrontSender;
   final WavefrontInternalReporter wfInternalReporter;
-  @Nullable
-  final WavefrontJvmReporter wfJvmReporter;
   final Set<String> traceDerivedCustomTagKeys;
   final Counter spansDropped;
   final Counter spansReceived;
@@ -128,15 +126,6 @@ final class WavefrontSleuthSpanHandler extends SpanHandler implements Runnable, 
         prefixedWith(TRACING_DERIVED_PREFIX).withSource(DEFAULT_SOURCE).reportMinuteDistribution().
         build(wavefrontSender);
     wfInternalReporter.start(1, TimeUnit.MINUTES);
-
-    if (wavefrontProperties.getTracing().isExtractJvmMetrics()) {
-      wfJvmReporter = new WavefrontJvmReporter.Builder(applicationTags).
-          withSource(source).build(wavefrontSender);
-      // Start the JVM reporter
-      wfJvmReporter.start();
-    } else {
-      wfJvmReporter = null;
-    }
 
     this.source = source;
     this.defaultTags = createDefaultTags(applicationTags, localServiceName);

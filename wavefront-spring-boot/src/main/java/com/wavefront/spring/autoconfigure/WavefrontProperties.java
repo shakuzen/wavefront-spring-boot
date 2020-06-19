@@ -65,6 +65,11 @@ public class WavefrontProperties {
      */
     private String shard;
 
+    /**
+     * Extract JMV metrics from application.
+     */
+    private boolean extractJvmMetrics = true;
+
     public String getName() {
       return this.name;
     }
@@ -97,21 +102,6 @@ public class WavefrontProperties {
       this.shard = shard;
     }
 
-  }
-
-  public static class Tracing {
-
-    /**
-     * Extract JMV metrics from traces.
-     */
-    private boolean extractJvmMetrics = true;
-
-    /**
-     * Tags that should be associated with RED metrics. If the span has any of the
-     * specified tags, then those get reported to generated RED metrics.
-     */
-    private Set<String> redMetricsCustomTagKeys = new HashSet<>();
-
     public boolean isExtractJvmMetrics() {
       return this.extractJvmMetrics;
     }
@@ -119,6 +109,16 @@ public class WavefrontProperties {
     public void setExtractJvmMetrics(boolean extractJvmMetrics) {
       this.extractJvmMetrics = extractJvmMetrics;
     }
+
+  }
+
+  public static class Tracing {
+
+    /**
+     * Tags that should be associated with RED metrics. If the span has any of the
+     * specified tags, then those get reported to generated RED metrics.
+     */
+    private Set<String> redMetricsCustomTagKeys = new HashSet<>();
 
     public Set<String> getRedMetricsCustomTagKeys() {
       return this.redMetricsCustomTagKeys;

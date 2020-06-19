@@ -35,10 +35,8 @@ class WavefrontTracingOpenTracingConfiguration {
     Reporter spanReporter = new WavefrontSpanReporter.Builder().withSource(wavefrontConfig.source())
         .build(wavefrontSender);
     WavefrontTracer.Builder builder = new WavefrontTracer.Builder(spanReporter, applicationTags);
+    builder.excludeJvmMetrics(); // reported separately
     Tracing tracingProperties = wavefrontProperties.getTracing();
-    if (!tracingProperties.isExtractJvmMetrics()) {
-      builder.excludeJvmMetrics();
-    }
     builder.redMetricsCustomTagKeys(new HashSet<>(tracingProperties.getRedMetricsCustomTagKeys()));
     return builder.build();
   }

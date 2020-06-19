@@ -9,6 +9,7 @@ import brave.TracingCustomizer;
 import brave.handler.SpanHandler;
 import com.wavefront.opentracing.WavefrontTracer;
 import com.wavefront.opentracing.reporting.Reporter;
+import com.wavefront.sdk.appagent.jvm.reporter.WavefrontJvmReporter;
 import com.wavefront.sdk.common.WavefrontSender;
 import com.wavefront.sdk.common.application.ApplicationTags;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -129,6 +130,37 @@ class WavefrontAutoConfigurationTests {
               .tags("service", "test-service").tags("cluster", "test-cluster").tags("shard", "test-shard")
               .counter()).isNull();
         });
+  }
+
+  @Test
+  void jvmReporterIsConfiguredWhenNoneExists() {
+      this.contextRunner
+              .with(wavefrontMetrics(() -> mock(WavefrontSender.class)))
+              .run((context) -> assertThat(context).hasSingleBean(WavefrontJvmReporter.class));
+  }
+
+  @Test
+  void jvmReporterCanBeDisabled() {
+      this.contextRunner
+              .withPropertyValues("wavefront.extract-jvm-metrics=false")
+              .with(wavefrontMetrics(() -> mock(WavefrontSender.class)))
+              .run(context -> assertThat(context).doesNotHaveBean(WavefrontJvmReporter.class));
+  }
+
+  @Test
+  void jvmReporterCanBeCustomized() {
+      WavefrontJvmReporter reporter = mock(WavefrontJvmReporter.class);
+      this.contextRunner
+              .with(wavefrontMetrics(() -> mock(WavefrontSender.class)))
+              .withBean(WavefrontJvmReporter.class, () -> reporter)
+              .run((context) -> assertThat(context).getBean(WavefrontJvmReporter.class).isEqualTo(reporter));
+  }
+
+  @Test
+  void jvmReporterNotMadeWithoutWavefrontSender() {
+      this.contextRunner
+              .with(metrics())
+              .run(context -> assertThat(context).doesNotHaveBean(WavefrontJvmReporter.class));
   }
 
   @Test
